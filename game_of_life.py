@@ -40,6 +40,7 @@ class GameOfLife(object):
 
     def run(self):
         pg.init()
+        py.display.set_caption("The Game of Life")
         self.init_screen()
 
         while self.is_run:
