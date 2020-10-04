@@ -22,7 +22,7 @@ class GameOfLife(object):
                 self.is_run = False
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
-                    self.pause = True
+                    self.pause = not self.pause
                 elif event.key == pg.K_RETURN:
                     self.is_game_run = True
 
