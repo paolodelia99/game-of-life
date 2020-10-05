@@ -2,6 +2,16 @@ import pygame as pg
 import numpy as np
 
 
+def get_neighbors(matrix: np.array, r, c):
+    def get(r, c):
+        return 0 <= r < matrix.shape[0] and 0 <= c < matrix.shape[1] and matrix[r, c]
+
+    neighbors_list = [get(r - 1, c - 1), get(r - 1, c), get(r - 1, c + 1), get(r, c - 1), get(r, c + 1),
+                      get(r + 1, c - 1), get(r + 1, c), get(r + 1, c + 1)]
+
+    return sum(map(bool, neighbors_list))
+
+
 class GameOfLife(object):
 
     def __init__(self, width, height, nx_cells, ny_cells):
@@ -40,7 +50,7 @@ class GameOfLife(object):
 
     def run(self):
         pg.init()
-        py.display.set_caption("The Game of Life")
+        pg.display.set_caption("The Game of Life")
         self.init_screen()
 
         while self.is_run:
@@ -71,19 +81,12 @@ class GameOfLife(object):
 
         new_game_state = np.copy(self.game_state)
 
-        for y in range(0, self.n_cells):
+        for y in range(self.n_cells):
             for x in range(self.n_cells):
 
                 if not self.pause:
 
-                    n_neigh = self.game_state[(x - 1) % self.n_cells, (y - 1) % self.n_cells] + \
-                              self.game_state[x % self.n_cells, (y - 1) % self.n_cells] + \
-                              self.game_state[(x + 1) % self.n_cells, (y - 1) % self.n_cells] + \
-                              self.game_state[(x - 1) % self.n_cells, y % self.n_cells] + \
-                              self.game_state[(x + 1) % self.n_cells, y % self.n_cells] + \
-                              self.game_state[(x - 1) % self.n_cells, (y + 1) % self.n_cells] + \
-                              self.game_state[x % self.n_cells, (y + 1) % self.n_cells] + \
-                              self.game_state[(x + 1) % self.n_cells, (y + 1) % self.n_cells]
+                    n_neigh = get_neighbors(self.game_state, x, y)
 
                     if self.game_state[x, y] == 0 and n_neigh == 3:
                         new_game_state[x, y] = 1
@@ -91,3 +94,8 @@ class GameOfLife(object):
                         new_game_state[x, y] = 0
 
         self.game_state = np.copy(new_game_state)
+
+    def restart_game(self):
+        self.is_game_run = False
+        self.pause = False
+        self.game_state = np.zero((self.n_cells, self.n_cells))
