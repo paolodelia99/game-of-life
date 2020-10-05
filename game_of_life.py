@@ -1,5 +1,6 @@
 import pygame as pg
 import numpy as np
+from menu import Menu
 
 
 def get_neighbors(matrix: np.array, r, c):
@@ -14,17 +15,16 @@ def get_neighbors(matrix: np.array, r, c):
 
 class GameOfLife(object):
 
-    def __init__(self, width, height, nx_cells, ny_cells):
+    def __init__(self, width, height, n_cells):
         self.width = width
         self.height = height
-        self.n_cells = nx_cells
-        self.cell_w = width / nx_cells
-        self.cell_h = height / ny_cells
+        self.n_cells = n_cells
         self.screen = pg.display.set_mode((height, width))
-        self.game_state = np.zeros((nx_cells, ny_cells)).astype(int)
+        self.random_init = False
         self.is_run = True
         self.is_game_run = False
         self.pause = False
+        self.recalculate_cells()
 
     def event_loop(self):
         for event in pg.event.get():
@@ -35,6 +35,8 @@ class GameOfLife(object):
                     self.pause = not self.pause
                 elif event.key == pg.K_RETURN:
                     self.is_game_run = True
+                elif event.key == pg.K_ESCAPE:
+                    pass
 
             if not self.is_game_run:
                 self.click_update(pg.mouse.get_pressed())
@@ -48,10 +50,23 @@ class GameOfLife(object):
             cel_x, cel_y = int(np.floor(pos_x / self.cell_w)), int(np.floor(pos_y / self.cell_h))
             self.game_state[cel_x, cel_y] = 1
 
+    def recalculate_cells(self):
+        self.cell_h = self.height / self.n_cells
+        self.cell_w = self.width / self.n_cells
+
+        if self.random_init:
+            self.game_state = np.random.randint(2, size=(self.n_cells, self.n_cells))
+        else:
+            self.game_state = np.zeros((self.n_cells, self.n_cells)).astype(int)
+
     def run(self):
         pg.init()
         pg.display.set_caption("The Game of Life")
         self.init_screen()
+
+        menu = Menu(self.screen)
+        self.random_init, self.n_cells = menu.run_menu()
+        self.recalculate_cells()
 
         while self.is_run:
             self.init_screen()

@@ -5,7 +5,7 @@ WINDOW_WIDTH = 1000
 
 
 def main():
-    gof = GameOfLife(WINDOW_WIDTH, WINDOW_HEIGHT, 50, 50)
+    gof = GameOfLife(WINDOW_WIDTH, WINDOW_HEIGHT, 50)
     gof.run()
 
 
