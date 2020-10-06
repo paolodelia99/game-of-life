@@ -1,5 +1,6 @@
 import pygame as pg
 import sys
+from game_of_life import GameOfLife
 
 
 class InputBox:
@@ -46,19 +47,23 @@ class InputBox:
 
 class Menu(object):
 
-    def __init__(self, screen):
-        self.screen = screen
+    def __init__(self, height, width, screen_bg):
+        pg.font.init()
+        self.screen = pg.display.set_mode((height, width))
+        self.width = width
+        self.height = height
+        self.bg = screen_bg
         self.font = pg.font.Font("assets/ARCADECLASSIC.ttf", 50)
         self.click = False
         self.random_init = False
         self.n_cells = 50
         self.buttons = [
-            ("Play", self.font.render("Play", True, (255, 255, 255)), pg.Rect(100, 100, 205, 80), (25, 25, 25)),
-            ("Options", self.font.render("Options", True, (255, 255, 255)), pg.Rect(100, 200, 205, 80), (25, 25, 25)),
+            ("Play", self.font.render("Play", True, (255, 255, 255)), pg.Rect(100, 100, 205, 80), self.bg),
+            ("Options", self.font.render("Options", True, (255, 255, 255)), pg.Rect(100, 200, 205, 80), self.bg),
         ]
         self.option_buttons = [
-            ("Random Start", self.font.render("Random Start", True, (255, 255, 255)), pg.Rect(100, 100, 205, 80), (25, 25, 25)),
-            ("Number of Cells", self.font.render("Number of Cells", True, (255, 255, 255)), pg.Rect(100, 200, 205, 80), (25, 25, 25)),
+            ("Random Start", self.font.render("Random   Start", True, (255, 255, 255)), pg.Rect(100, 100, 205, 80), self.bg),
+            ("Number of Cells", self.font.render("Number  of  Cells", True, (255, 255, 255)), pg.Rect(100, 200, 205, 80), self.bg),
         ]
 
     def draw_text(self, text, font, color, screen, x, y):
@@ -89,7 +94,8 @@ class Menu(object):
                     for button in self.buttons:
                         if button[2].collidepoint(event.pos):
                             if button[0] == 'Play':
-                                return self.random_init, self.n_cells
+                                gof = GameOfLife(self.width, self.height, 50, self.random_init)
+                                gof.run()
                             elif button[0] == "Options":
                                 self.options_menu()
 
@@ -98,16 +104,22 @@ class Menu(object):
             pg.display.update()
 
     def refresh_screen(self):
-        self.screen.fill((25, 25, 25))
+        self.screen.fill(self.bg)
 
     def options_menu(self):
         running = True
-        box = InputBox(550, 200, 205, 80, str(self.n_cells))
+        box = InputBox(550, 200, 150, 50, str(self.n_cells))
 
         while running:
 
+            words = [
+                ('Options', (255, 255, 255), 20, 20),
+                ('False' if not self.random_init else 'True', (255, 255, 255), 550, 100)
+            ]
+
             self.refresh_screen()
-            self.draw_text('Options', self.font, (255, 255, 255), self.screen, 20, 20)
+            for text, color, x, y in words:
+                self.draw_text(text, self.font, color, self.screen, x, y)
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -117,21 +129,23 @@ class Menu(object):
                     if event.key == pg.K_ESCAPE:
                         running = False
                 elif event.type == pg.MOUSEBUTTONDOWN:
-                    for button in self.buttons:
+                    for button in self.option_buttons:
                         if button[2].collidepoint(event.pos):
                             if button[0] == 'Random Start':
-                                self.random_init = True
+                                self.random_init = not self.random_init
 
                 box.handle_event(event)
 
             try:
-                self.n_cells = int(box.text)
+                cells = int(box.text)
+                print("rights cells")
             except Exception:
-                print('Cannot parse text in the box')
-                self.n_cells = 50
+                cells = 50
+                print("exception")
+            finally:
+                self.n_cells = cells
 
             box.update()
-            self.refresh_screen()
             box.draw(self.screen)
 
             self.draw_buttons(self.option_buttons)

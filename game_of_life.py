@@ -1,6 +1,6 @@
 import pygame as pg
 import numpy as np
-from menu import Menu
+import sys
 
 
 def get_neighbors(matrix: np.array, r, c):
@@ -13,36 +13,48 @@ def get_neighbors(matrix: np.array, r, c):
     return sum(map(bool, neighbors_list))
 
 
+def random_matrix(n_cells: int):
+    return np.random.randint(2, size=(n_cells, n_cells))
+
+
+def zeros_matrix(n_cells: int):
+    return np.zeros((n_cells, n_cells)).astype(int)
+
+
 class GameOfLife(object):
 
-    def __init__(self, width, height, n_cells):
+    def __init__(self, width, height, n_cells, random_init=False, screen_bg=(25, 25, 25)):
         self.width = width
         self.height = height
         self.n_cells = n_cells
         self.screen = pg.display.set_mode((height, width))
-        self.random_init = False
+        self.screen_bg = screen_bg
+        self.random_init = random_init
         self.is_run = True
         self.is_game_run = False
         self.pause = False
-        self.recalculate_cells()
+        self.cell_h = self.height / self.n_cells
+        self.cell_w = self.width / self.n_cells
+        self.game_state = random_matrix(self.n_cells) if random_init else zeros_matrix(self.n_cells)
 
     def event_loop(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                self.is_run = False
+                pg.quit()
+                sys.exit()
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     self.pause = not self.pause
                 elif event.key == pg.K_RETURN:
                     self.is_game_run = True
                 elif event.key == pg.K_ESCAPE:
-                    pass
+                    self.is_run = False
 
             if not self.is_game_run:
                 self.click_update(pg.mouse.get_pressed())
 
     def init_screen(self):
-        self.screen.fill((25, 25, 25))
+        self.screen.fill(self.screen_bg)
 
     def click_update(self, mouse_click):
         if sum(mouse_click) > 0:
@@ -50,23 +62,10 @@ class GameOfLife(object):
             cel_x, cel_y = int(np.floor(pos_x / self.cell_w)), int(np.floor(pos_y / self.cell_h))
             self.game_state[cel_x, cel_y] = 1
 
-    def recalculate_cells(self):
-        self.cell_h = self.height / self.n_cells
-        self.cell_w = self.width / self.n_cells
-
-        if self.random_init:
-            self.game_state = np.random.randint(2, size=(self.n_cells, self.n_cells))
-        else:
-            self.game_state = np.zeros((self.n_cells, self.n_cells)).astype(int)
-
     def run(self):
         pg.init()
         pg.display.set_caption("The Game of Life")
         self.init_screen()
-
-        menu = Menu(self.screen)
-        self.random_init, self.n_cells = menu.run_menu()
-        self.recalculate_cells()
 
         while self.is_run:
             self.init_screen()
