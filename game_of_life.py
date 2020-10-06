@@ -13,11 +13,11 @@ def get_neighbors(matrix: np.array, r, c):
     return sum(map(bool, neighbors_list))
 
 
-def random_matrix(n_cells: int):
+def random_matrix(n_cells: int) -> np.array:
     return np.random.randint(2, size=(n_cells, n_cells))
 
 
-def zeros_matrix(n_cells: int):
+def zeros_matrix(n_cells: int) -> np.array:
     return np.zeros((n_cells, n_cells)).astype(int)
 
 

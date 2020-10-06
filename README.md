@@ -2,7 +2,7 @@
 
 Here's my attempt to recreate the game of life using pygame
 
-![the-game-of-life](imgs/the-game-of-life-screen.png)
+![the-game-of-life](imgs/game-of-life.gif)
 
 # Quick start 
 
@@ -18,10 +18,14 @@ Run the game
 
     python main.py
     
+Add the additional argument `-d` or `--dimension` if you want a smaller screen (the default is 1000px):
+
+    python main.py -d 500
 # Controllers
 
 - **Return key** to start the game after you draw the points on the suface
 - **Space** to Pause the game 
+- **Esc** to go back to the menu
     
 
 # Author

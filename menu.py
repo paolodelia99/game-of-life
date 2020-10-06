@@ -138,10 +138,8 @@ class Menu(object):
 
             try:
                 cells = int(box.text)
-                print("rights cells")
             except Exception:
                 cells = 50
-                print("exception")
             finally:
                 self.n_cells = cells
 
